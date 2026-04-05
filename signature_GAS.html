@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>전자 서명 패드</title>
+ <style>
+ body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f4f9; }
+ .box { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+ canvas { border: 1px solid #ccc; background: white; width: 100%; height: 200px; border-radius: 8px; touch-action: none; }
+ input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+ .button-group { display: flex; gap: 10px; margin-top: 15px; }
+ button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; background: #007bff; color: white; }
+ button.clear { background: #6c757d; }
+ </style>
+</head>
+<body>
+ <div class="box">
+ <h3>서명 입력</h3>
+ <input type="text" id="userName" placeholder="이름을 입력하세요" required>
+ <canvas id="signature-pad"></canvas>
+ <div class="button-group">
+ <button class="clear" onclick="clearSignature()">지우기</button>
+ <button onclick="saveSignature()">제출하기</button>
+ </div>
+ </div>
+ <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+ <script>
+ const canvas = document.getElementById('signature-pad');
+ const signaturePad = new SignaturePad(canvas);
+ function clearSignature() { signaturePad.clear(); }
+ async function saveSignature() {
+ if (signaturePad.isEmpty()) return alert("서명을 먼저 입력해주세요.");
+ const userName = document.getElementById('userName').value;
+ if (!userName) return alert("이름을 입력해주세요.");
+ const dataURL = signaturePad.toDataURL("image/png");
+ // 여기에 구글 앱스 스크립트 배포 URL을 입력하세요
+ const GAS_URL = "https://script.google.com/macros/s/AKfycbw7PN6L-6K3-HNCTK_Ij5alxTcsYb-NtmAZ8Z1VrccqpLV2Z9nhgcwgJZm1io5pRH6s/exec";
+ try {
+ const response = await fetch(GAS_URL, {
+ method: 'POST',
+ mode: 'no-cors',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ name: userName, image: dataURL })
+ });
+ alert("성공적으로 제출되었습니다!");
+ } catch (error) {
+ alert("제출 중 오류 발생: " + error);
+ }
+ }
+ function resizeCanvas() {
+ const ratio = Math.max(window.devicePixelRatio || 1, 1);
+ canvas.width = canvas.offsetWidth * ratio;
+ canvas.height = canvas.offsetHeight * ratio;
+ canvas.getContext("2d").scale(ratio, ratio);
+ signaturePad.clear();
+ }
+ window.addEventListener("resize", resizeCanvas);
+ resizeCanvas();
+ </script>
+</body>
+</html>
