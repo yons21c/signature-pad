@@ -35,7 +35,7 @@
  if (!userName) return alert("이름을 입력해주세요.");
  const dataURL = signaturePad.toDataURL("image/png");
  // 여기에 구글 앱스 스크립트 배포 URL을 입력하세요
- const GAS_URL = "YOUR_GAS_WEB_APP_URL";
+ const GAS_URL = "https://script.google.com/macros/s/AKfycbw7PN6L-6K3-HNCTK_Ij5alxTcsYb-NtmAZ8Z1VrccqpLV2Z9nhgcwgJZm1io5pRH6s/exec";
  try {
  const response = await fetch(GAS_URL, {
  method: 'POST',
